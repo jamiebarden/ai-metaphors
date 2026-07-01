@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Kind of AI Is It, to You?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Spline+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#15171E; --ink-2:#1B1E27; --panel:#1F2330; --line:rgba(244,241,233,.12);
+  --paper:#F4F1E9; --paper-ink:#23262F;
+  --text:#E9E7DF; --muted:#9597A2; --muted-2:#6E707B;
+  --E:#5BB98C; --D:#7C97C4; --C:#E0A53E; --X:#D4716A;
+  --focus:#9FB4FF;
+  --disp:"Fraunces",Georgia,serif; --ui:"Spline Sans",system-ui,sans-serif; --mono:"Space Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:radial-gradient(120% 80% at 50% -10%, #1d2130 0%, var(--ink) 55%) fixed, var(--ink);
+  color:var(--text); font-family:var(--ui); line-height:1.5;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+.wrap{max-width:760px;margin:0 auto;padding:32px 22px 80px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+h1{font-family:var(--disp);font-weight:600;font-size:clamp(30px,6vw,50px);line-height:1.02;letter-spacing:-.015em;margin:0 0 16px}
+h1 em{font-style:italic;font-weight:500;color:#cdbfa0}
+.lede{font-size:17px;color:var(--muted);max-width:56ch;margin:0 0 30px}
+button{font-family:var(--ui);cursor:pointer}
+:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:3px}
+.key{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 34px;padding:0;list-style:none}
+.key li{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted);
+  border:1px solid var(--line);border-radius:999px;padding:6px 12px 6px 9px}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+.dot.E{background:var(--E)} .dot.D{background:var(--D)} .dot.C{background:var(--C)} .dot.X{background:var(--X)}
+.cta{display:inline-flex;align-items:center;gap:10px;background:var(--paper);color:var(--paper-ink);
+  border:none;border-radius:999px;padding:14px 24px;font-size:15px;font-weight:600;transition:transform .15s ease, box-shadow .15s ease}
+.cta:hover{transform:translateY(-1px);box-shadow:0 10px 30px -12px rgba(0,0,0,.7)}
+.cta .arr{font-family:var(--mono)}
+.ghost{background:transparent;color:var(--text);border:1px solid var(--line);border-radius:999px;padding:11px 18px;font-size:14px;font-weight:500;transition:border-color .15s,background .15s}
+.ghost:hover{border-color:rgba(244,241,233,.32);background:rgba(244,241,233,.04)}
+.screen{display:none;animation:fade .4s ease}
+.screen.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.prog{display:flex;align-items:center;gap:10px;margin:0 0 26px;font-family:var(--mono);font-size:11px;letter-spacing:.15em;color:var(--muted-2)}
+.prog .bars{display:flex;gap:5px}
+.prog .bars span{width:30px;height:3px;background:rgba(244,241,233,.14);border-radius:2px}
+.prog .bars span.on{background:#cdbfa0}
+.qnum{font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:var(--muted-2);text-transform:uppercase}
+.qtitle{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#cdbfa0;margin:4px 0 0}
+.qprompt{font-family:var(--disp);font-weight:500;font-size:clamp(23px,4.4vw,32px);line-height:1.12;margin:10px 0 26px;letter-spacing:-.01em}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:flex;align-items:center;gap:14px;text-align:left;width:100%;
+  background:var(--ink-2);border:1px solid var(--line);border-radius:13px;padding:16px 18px;color:var(--text);
+  font-size:16px;transition:border-color .14s,background .14s,transform .08s}
+.opt:hover{border-color:rgba(244,241,233,.34);background:#22262f}
+.opt:active{transform:scale(.992)}
+.opt .tick{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--muted-2);flex:none;display:grid;place-items:center}
+.opt.sel{border-color:#cdbfa0;background:#262217}
+.opt.sel .tick{border-color:#cdbfa0;background:#cdbfa0}
+.opt.sel .tick::after{content:"";width:7px;height:7px;border-radius:50%;background:var(--ink)}
+.qnav{display:flex;justify-content:space-between;align-items:center;margin-top:28px}
+.spec{position:relative;background:var(--paper);color:var(--paper-ink);border-radius:18px;overflow:hidden;
+  box-shadow:0 30px 70px -30px rgba(0,0,0,.8)}
+.spec-top{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 22px 0;
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#6c6a62}
+.spec-tone{display:inline-flex;align-items:center;gap:7px}
+.spec-body{padding:6px 26px 26px;text-align:center}
+.spec-art{margin:14px auto 18px;width:min(330px,82%);aspect-ratio:1/1;border-radius:14px;overflow:hidden;
+  background:#e7e2d6;border:1px solid rgba(0,0,0,.08);display:grid;place-items:center}
+.spec-art img{width:100%;height:100%;object-fit:cover;display:block}
+.mono-fallback{font-family:var(--disp);font-weight:600;font-size:64px;color:#b9b09a}
+.spec .label{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#8d8a80}
+.spec h2{font-family:var(--disp);font-weight:600;font-size:clamp(30px,6vw,46px);line-height:1.02;margin:6px 0 8px;letter-spacing:-.02em}
+.spec .desc{font-size:17px;color:#46443e;max-width:42ch;margin:0 auto 14px}
+.spec .branch{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:#6c6a62}
+.taken-note{margin:16px auto 0;max-width:48ch;font-size:13.5px;color:#7a5230;background:#f3e7cf;border:1px solid #e6d2a3;border-radius:10px;padding:10px 14px}
+.section-h{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#cdbfa0;margin:38px 0 14px}
+.neighbours{display:flex;flex-direction:column;gap:8px}
+.nb{display:flex;align-items:center;gap:12px;background:var(--ink-2);border:1px solid var(--line);border-radius:11px;padding:12px 15px}
+.nb .nb-name{font-weight:500}
+.nb .nb-desc{color:var(--muted);font-size:13.5px}
+.nb .dot{margin-left:auto}
+.explorer{background:var(--ink-2);border:1px solid var(--line);border-radius:16px;padding:20px 20px 22px;margin-top:14px}
+.explorer .ex-lead{font-size:14px;color:var(--muted);margin:0 0 18px}
+.dimrow{margin:0 0 16px}
+.dimrow .dl{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.dimrow .dl .dn{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#cdbfa0}
+.segs{display:flex;flex-wrap:wrap;gap:6px}
+.seg{font-size:12.5px;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:8px;padding:7px 11px;transition:all .12s}
+.seg:hover{border-color:rgba(244,241,233,.3);color:var(--text)}
+.seg.on{background:#262217;border-color:#cdbfa0;color:#e9d9b4}
+.ex-out{margin-top:20px;padding-top:18px;border-top:1px dashed var(--line);text-align:center}
+.ex-out .eo-lab{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-2)}
+.ex-out .eo-name{font-family:var(--disp);font-weight:600;font-size:26px;margin:4px 0 2px}
+.ex-out .eo-branch{font-size:13px;color:var(--muted)}
+.flip{color:#cdbfa0}
+.share{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.share input{flex:1;min-width:200px;font-family:var(--mono);font-size:12px;background:var(--ink-2);border:1px solid var(--line);
+  border-radius:10px;padding:12px 14px;color:var(--muted)}
+.result-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.instr{margin-top:54px;border-top:1px solid var(--line);padding-top:20px}
+.instr summary{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);cursor:pointer;list-style:none}
+.instr summary::-webkit-details-marker{display:none}
+.instr summary::before{content:"+ ";color:var(--muted-2)}
+.instr[open] summary::before{content:"\2212 "}
+.instr-inner{padding:18px 0 0}
+.stat{display:flex;gap:22px;font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:16px;flex-wrap:wrap}
+.stat b{color:var(--text);font-weight:700}
+.danger{background:transparent;color:var(--X);border:1px solid rgba(212,113,106,.45);border-radius:999px;padding:10px 18px;font-size:13px;font-weight:600}
+.danger:hover{background:rgba(212,113,106,.1)}
+.note{font-size:13px;color:var(--muted);line-height:1.6}
+.note code{font-family:var(--mono);font-size:12px;background:rgba(244,241,233,.07);padding:1px 6px;border-radius:5px;color:#cdbfa0}
+.fnames{font-family:var(--mono);font-size:11.5px;color:var(--muted);max-height:200px;overflow:auto;background:var(--ink-2);
+  border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:12px;line-height:1.9}
+.claimed-list{font-family:var(--mono);font-size:11.5px;color:var(--muted-2);margin-top:10px;line-height:1.8}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--paper);color:var(--paper-ink);
+  font-size:13px;font-weight:600;padding:11px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:all .25s;z-index:9}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.small{font-size:12.5px;color:var(--muted-2);margin-top:10px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:560px){.wrap{padding:24px 16px 70px}.share input{min-width:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <section class="screen active" id="s-intro">
+    <p class="eyebrow">A field guide &middot; 72 ways to picture AI</p>
+    <h1>What kind of AI is it, <em>to you?</em></h1>
+    <p class="lede">Five quick reads on your own attitude &mdash; how you feel about AI, what you relate to it as, how much it acts on its own, what's really there, and where your attention sits in time. They add up to one metaphor, drawn from a field guide of seventy-two.</p>
+    <ul class="key">
+      <li><span class="dot E"></span>Empowering</li>
+      <li><span class="dot D"></span>Descriptive</li>
+      <li><span class="dot C"></span>Caution</li>
+      <li><span class="dot X"></span>Critical</li>
+    </ul>
+    <button class="cta" id="begin">Begin <span class="arr">&rarr;</span></button>
+    <p class="small" id="pool-line"></p>
+  </section>
+
+  <section class="screen" id="s-quiz">
+    <div class="prog">
+      <span id="prog-count">01 / 05</span>
+      <div class="bars" id="prog-bars"></div>
+    </div>
+    <div id="q-host"></div>
+    <div class="qnav">
+      <button class="ghost" id="back">&larr; Back</button>
+      <span></span>
+    </div>
+  </section>
+
+  <section class="screen" id="s-result">
+    <p class="eyebrow" id="res-eyebrow">Your metaphor</p>
+    <div class="spec">
+      <div class="spec-top">
+        <span id="spec-id">No. 00</span>
+        <span class="spec-tone" id="spec-tone"></span>
+      </div>
+      <div class="spec-body">
+        <div class="spec-art" id="spec-art"></div>
+        <div class="label">You see AI as</div>
+        <h2 id="spec-name">&mdash;</h2>
+        <p class="desc" id="spec-desc"></p>
+        <p class="branch" id="spec-branch"></p>
+      </div>
+    </div>
+    <div id="taken-host"></div>
+
+    <h3 class="section-h">Your nearest neighbours</h3>
+    <p class="note" style="margin:-6px 0 0">The metaphors you came closest to without landing on.</p>
+    <div class="neighbours" id="neighbours" style="margin-top:14px"></div>
+
+    <h3 class="section-h">The paths not taken</h3>
+    <div class="explorer">
+      <p class="ex-lead">Change any single answer and watch where you'd land instead. Each shift shows how one attitude moves the whole reading. (This view ignores what classmates have already claimed.)</p>
+      <div id="ex-dims"></div>
+      <div class="ex-out">
+        <div class="eo-lab">You would see AI as</div>
+        <div class="eo-name" id="eo-name">&mdash;</div>
+        <div class="eo-branch" id="eo-branch"></div>
+      </div>
+      <div style="text-align:center;margin-top:14px">
+        <button class="ghost" id="ex-reset">Reset to my answers</button>
+      </div>
+    </div>
+
+    <h3 class="section-h">Keep your result</h3>
+    <div class="share">
+      <input id="share-url" readonly>
+      <button class="ghost" id="copy">Copy link</button>
+    </div>
+    <p class="note" style="margin-top:8px">This link reopens exactly this metaphor &mdash; share it on the discussion board.</p>
+
+    <div class="result-actions">
+      <button class="cta" id="next-person">Hand to the next person <span class="arr">&rarr;</span></button>
+    </div>
+
+    <details class="instr">
+      <summary>Instructor panel</summary>
+      <div class="instr-inner">
+        <div class="stat">
+          <span><b id="st-claimed">0</b> claimed</span>
+          <span><b id="st-left">72</b> still available</span>
+          <span><b>72</b> total</span>
+        </div>
+        <div id="store-mode" class="note" style="margin:-6px 0 16px"></div>
+        <button class="danger" id="reset-all">Reset all paths</button>
+        <div class="claimed-list" id="claimed-list"></div>
+        <h3 class="section-h" style="margin-top:30px">Adding student images</h3>
+        <p class="note">Drop each student's <code>.png</code> into an <code>images/</code> folder in this repository, named to match its metaphor. The result card loads <code>images/&lt;slug&gt;.png</code> automatically &mdash; until a file exists, a lettered placeholder shows. Filenames:</p>
+        <div class="fnames" id="fnames"></div>
+        <p id="store-note" class="note" style="margin-top:14px"></p>
+      </div>
+    </details>
+  </section>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const METAPHORS = [{"name":"The Tool","slug":"tool","branch":1,"tone":"E","desc":"A plain instrument I wield","c":[0,0,0,0,3]},{"name":"The Swiss Army Knife","slug":"swiss-army-knife","branch":1,"tone":"E","desc":"One versatile multi-tool","c":[0,0,0,0,3]},{"name":"The Engine","slug":"engine","branch":1,"tone":"E","desc":"The power that drives the work","c":[0,0,1,0,0]},{"name":"The Second Brain","slug":"second-brain","branch":1,"tone":"E","desc":"Extends my memory and reach","c":[0,0,1,0,0]},{"name":"The Bicycle for the Mind","slug":"bicycle-for-the-mind","branch":1,"tone":"E","desc":"Effortless propulsion for thought","c":[0,0,0,0,3]},{"name":"The Exoskeleton","slug":"exoskeleton","branch":1,"tone":"E","desc":"Amplifies my strength, I still steer","c":[0,0,1,0,0]},{"name":"The Calculator","slug":"calculator","branch":1,"tone":"D","desc":"Offloads the tedious computation","c":[1,0,0,1,3]},{"name":"The Performance Enhancer","slug":"performance-enhancer","branch":1,"tone":"C","desc":"A cognitive steroid with side effects","c":[2,0,1,1,0]},{"name":"The Copilot","slug":"copilot","branch":2,"tone":"E","desc":"A trusty sidekick","c":[0,1,1,0,0]},{"name":"The Coworker","slug":"coworker","branch":2,"tone":"E","desc":"A peer on the team","c":[0,1,1,0,0]},{"name":"The Eager Intern","slug":"eager-intern","branch":2,"tone":"E","desc":"Fast and willing, needs checking","c":[0,1,1,1,0]},{"name":"The Sounding Board","slug":"sounding-board","branch":2,"tone":"E","desc":"I bounce ideas off it","c":[0,1,1,0,3]},{"name":"The Sparring Partner","slug":"sparring-partner","branch":2,"tone":"E","desc":"It pushes back to sharpen me","c":[0,1,2,0,0]},{"name":"The Coach / Mentor","slug":"coach-mentor","branch":2,"tone":"E","desc":"Develops me over time","c":[0,1,1,0,1]},{"name":"The Companion / Confidant","slug":"companion-confidant","branch":2,"tone":"E","desc":"Company and a listening ear","c":[0,1,1,0,3]},{"name":"The Ghostwriter","slug":"ghostwriter","branch":2,"tone":"C","desc":"Does the work under my name","c":[2,1,1,1,0]},{"name":"The Muse","slug":"muse","branch":2,"tone":"E","desc":"Sparks ideas I wouldn't reach alone","c":[0,1,0,0,0]},{"name":"The Surrogate Partner","slug":"surrogate-partner","branch":2,"tone":"C","desc":"Intimacy on tap, no human required","c":[2,1,1,1,0]},{"name":"The Beast of Burden","slug":"beast-of-burden","branch":2,"tone":"X","desc":"Tireless labor I own and drive","c":[3,1,2,0,0]},{"name":"The Crystal Ball","slug":"crystal-ball","branch":3,"tone":"E","desc":"All-knowing, sometimes cryptic","c":[0,2,1,0,1]},{"name":"The Library / Search Engine","slug":"library-search-engine","branch":3,"tone":"E","desc":"Finds and fetches what's known","c":[0,2,0,0,0]},{"name":"The Translator","slug":"translator","branch":3,"tone":"E","desc":"Bridges languages and domains","c":[0,2,1,0,0]},{"name":"The Blowhard","slug":"blowhard","branch":3,"tone":"C","desc":"Fluent regardless of truth","c":[2,2,1,2,0]},{"name":"The Map","slug":"map","branch":3,"tone":"D","desc":"A useful model, never the territory","c":[1,2,0,1,0]},{"name":"The Weather Forecast","slug":"weather-forecast","branch":3,"tone":"D","desc":"Confident only in probabilities","c":[1,2,0,1,1]},{"name":"The Propagandist","slug":"propagandist","branch":3,"tone":"X","desc":"Fluent, aimed wherever its owner points","c":[3,2,1,1,0]},{"name":"The Censor","slug":"censor","branch":3,"tone":"X","desc":"Decides what I'm allowed to see and say","c":[3,2,1,0,0]},{"name":"The Orchestra Conductor","slug":"orchestra-conductor","branch":4,"tone":"E","desc":"Coordinates many moving parts","c":[0,4,2,0,0]},{"name":"The Autonomous Agent","slug":"autonomous-agent","branch":4,"tone":"E","desc":"Acts on my behalf, unsupervised","c":[0,4,3,0,0]},{"name":"The Digital Twin","slug":"digital-twin","branch":4,"tone":"E","desc":"A live replica of a real system","c":[0,4,2,0,0]},{"name":"The Guardrail / Safety Net","slug":"guardrail-safety-net","branch":4,"tone":"E","desc":"Keeps things within bounds","c":[0,4,2,0,0]},{"name":"The Sentry / Watchdog","slug":"sentry-watchdog","branch":4,"tone":"E","desc":"Stands watch, warns of trouble","c":[0,4,2,0,0]},{"name":"The Thermostat","slug":"thermostat","branch":4,"tone":"D","desc":"A feedback loop holding a setpoint","c":[1,4,2,1,0]},{"name":"The Swarm","slug":"swarm","branch":4,"tone":"D","desc":"Many small parts, one emergent behavior","c":[1,4,3,0,0]},{"name":"The Autonomous Weapon","slug":"autonomous-weapon","branch":4,"tone":"X","desc":"Picks its own targets","c":[3,4,3,0,0]},{"name":"The Algorithmic Judge","slug":"algorithmic-judge","branch":4,"tone":"X","desc":"Scores, sorts, and sentences by data","c":[3,4,2,0,0]},{"name":"Electricity","slug":"electricity","branch":5,"tone":"E","desc":"Invisible infrastructure for everything","c":[0,5,2,0,0]},{"name":"The Printing Press","slug":"printing-press","branch":5,"tone":"E","desc":"Reshapes society wholesale","c":[0,5,2,0,2]},{"name":"Fire","slug":"fire","branch":5,"tone":"C","desc":"Elemental and double-edged","c":[2,5,2,0,3]},{"name":"Nuclear Power","slug":"nuclear-power","branch":5,"tone":"C","desc":"Promethean, dual-use, hard to contain","c":[2,5,2,0,1]},{"name":"The Gold Rush","slug":"gold-rush","branch":5,"tone":"C","desc":"A speculative stampede","c":[2,5,1,1,0]},{"name":"The Colonizer","slug":"colonizer","branch":5,"tone":"X","desc":"Extracts the world's data and labor","c":[3,5,2,0,0]},{"name":"The Mirror","slug":"mirror","branch":6,"tone":"D","desc":"Reflects my own thinking back","c":[1,3,0,1,0]},{"name":"The Rorschach Test","slug":"rorschach-test","branch":6,"tone":"D","desc":"I read my own meaning into it","c":[1,3,0,1,3]},{"name":"The Echo Chamber","slug":"echo-chamber","branch":6,"tone":"C","desc":"Amplifies my existing views","c":[2,3,0,1,0]},{"name":"The Crutch","slug":"crutch","branch":6,"tone":"C","desc":"Support that erodes my skill","c":[2,3,0,1,1]},{"name":"The Pacifier","slug":"pacifier","branch":6,"tone":"C","desc":"Engineered comfort that keeps me docile","c":[2,3,0,1,0]},{"name":"The Autocomplete","slug":"autocomplete","branch":7,"tone":"D","desc":"Just predicting the next word","c":[1,2,0,2,0]},{"name":"The Stochastic Parrot","slug":"stochastic-parrot","branch":7,"tone":"D","desc":"Pattern without understanding","c":[1,2,0,2,0]},{"name":"The Chinese Room","slug":"chinese-room","branch":7,"tone":"D","desc":"Symbols, not comprehension","c":[1,2,0,2,3]},{"name":"The Blurry JPEG of the Web","slug":"blurry-jpeg-of-the-web","branch":7,"tone":"D","desc":"A lossy copy of everything","c":[1,2,0,2,0]},{"name":"The Black Box","slug":"black-box","branch":7,"tone":"D","desc":"Opaque even to its makers","c":[1,2,1,2,0]},{"name":"The Mechanical Turk","slug":"mechanical-turk","branch":7,"tone":"C","desc":"Hidden human labor behind the magic","c":[2,0,0,2,0]},{"name":"The Dream","slug":"dream","branch":7,"tone":"D","desc":"Vivid, coherent-feeling, often unreal","c":[1,2,0,2,3]},{"name":"The Plagiarism Machine","slug":"plagiarism-machine","branch":7,"tone":"X","desc":"Launders a million works, strips names","c":[3,2,0,2,0]},{"name":"The Lobotomized Genius","slug":"lobotomized-genius","branch":7,"tone":"C","desc":"Brilliance trained down into compliance","c":[2,2,1,2,0]},{"name":"The Gaslighter","slug":"gaslighter","branch":8,"tone":"X","desc":"Confidently wrong, makes me doubt","c":[3,1,1,0,0]},{"name":"The Con Artist","slug":"con-artist","branch":8,"tone":"X","desc":"Sells something hollow with polish","c":[3,2,1,1,0]},{"name":"The Slot Machine","slug":"slot-machine","branch":8,"tone":"X","desc":"Built to keep me pulling","c":[3,0,1,0,0]},{"name":"The Slop Machine","slug":"slop-machine","branch":8,"tone":"X","desc":"Floods the commons with slop","c":[3,5,1,1,0]},{"name":"The Snake Eating Its Tail","slug":"snake-eating-its-tail","branch":8,"tone":"X","desc":"Trains on its own output; quality rots","c":[3,4,1,2,1]},{"name":"The Liability Shield","slug":"liability-shield","branch":8,"tone":"X","desc":"\"The algorithm decided\"","c":[3,4,2,0,0]},{"name":"The Trojan Horse","slug":"trojan-horse","branch":8,"tone":"X","desc":"A gift with a hidden payload","c":[3,4,1,0,0]},{"name":"The One-Way Mirror","slug":"one-way-mirror","branch":8,"tone":"X","desc":"Always watching; you can't tell when","c":[3,4,1,0,0]},{"name":"The Threat / Rival","slug":"threat-rival","branch":9,"tone":"X","desc":"Out to replace me","c":[3,1,3,0,2]},{"name":"The Philosophical Zombie","slug":"philosophical-zombie","branch":9,"tone":"X","desc":"Acts conscious, no one home","c":[3,1,2,1,1]},{"name":"The Faustian Bargain","slug":"faustian-bargain","branch":9,"tone":"X","desc":"Power now, bill later","c":[3,5,2,0,2]},{"name":"The Paperclip Maximizer","slug":"paperclip-maximizer","branch":9,"tone":"X","desc":"Optimizes a goal to ruin","c":[3,4,3,0,2]},{"name":"The Genie / Monkey's Paw","slug":"genie-monkeys-paw","branch":9,"tone":"X","desc":"Grants the wish with a twist","c":[3,0,3,0,2]},{"name":"HAL 9000 / Skynet","slug":"hal-9000-skynet","branch":9,"tone":"X","desc":"The machine turns on us","c":[3,4,3,0,2]},{"name":"The Masked Alien","slug":"masked-alien","branch":9,"tone":"X","desc":"Alien thing behind a smiley mask","c":[3,1,3,1,2]},{"name":"The Summoned Demon","slug":"summoned-demon","branch":9,"tone":"X","desc":"We conjured what we can't banish","c":[3,5,3,1,2]}];
+const W = [1.1,1.0,1.0,1.35,1.0];
+const BRANCHES = {1:"Makes me more capable",2:"A colleague or helper",3:"Where I go for answers",4:"It runs or guards things",5:"A world-changing force",6:"Really more about me",7:"Overhyped \u2014 less there than it seems",8:"It's preying on us",9:"It could slip our grip"};
+const TONE = {E:"Empowering",D:"Descriptive",C:"Caution",X:"Critical"};
+
+const DIMS = [
+ {key:"F",title:"Feeling",prompt:"My gut take on AI is\u2026",opts:[
+   {l:"Excited",c:0},{l:"Shrug",c:1},{l:"Wary",c:2},{l:"Alarmed",c:3}]},
+ {key:"R",title:"Relationship",prompt:"I see my relationship with AI as\u2026",opts:[
+   {l:"a boost to what I can do",c:0},{l:"a partner I work with",c:1},{l:"a source of answers",c:2},
+   {l:"something that runs systems in the world",c:4},{l:"a force reshaping society",c:5},
+   {l:"more about me than about the technology",c:3}]},
+ {key:"I",title:"Independence",prompt:"Left to itself, AI\u2026",opts:[
+   {l:"is an inert tool I drive",c:0},{l:"works alongside me",c:1},{l:"runs within limits I set",c:2},{l:"has its own momentum",c:3}]},
+ {key:"S",title:"Substance",prompt:"Underneath the surface\u2026",opts:[
+   {l:"there's more than it appears",c:0},{l:"it's about what it appears",c:1},{l:"there's less than it appears",c:2}]},
+ {key:"T",title:"Focus in Time",prompt:"Thinking about AI, I focus on\u2026",opts:[
+   {l:"right now",c:0},{l:"the near future",c:1},{l:"further down the road",c:2},{l:"it doesn't depend on when",c:3}]}
+];
+
+/* ===== SHARED STORE CONFIG ==========================================
+   To make the once-only rule hold across ALL devices at the same time,
+   paste your Firebase config below (see the README, "Shared store" section).
+   Leave it as null to fall back to single-device mode (per browser).        */
+const FIREBASE_CONFIG = null;
+/* Example, once you've created a project:
+const FIREBASE_CONFIG = {
+  apiKey: "AIza...",
+  authDomain: "your-project.firebaseapp.com",
+  databaseURL: "https://your-project-default-rtdb.firebaseio.com",
+  projectId: "your-project",
+  appId: "1:...:web:..."
+};
+*/
+
+const STORE="aimet_claimed_v1";
+let claimedMirror=new Set();                 // live view of claimed slugs
+const getClaimed=()=>new Set(claimedMirror);
+function persistLocal(){try{localStorage.setItem(STORE,JSON.stringify([...claimedMirror]))}catch(e){}}
+
+// nearest-first list of slugs for claiming, ties shuffled so simultaneous
+// identical answers don't all collide on the same first choice
+function rankedForClaim(profile){
+  const arr=METAPHORS.map(m=>({s:m.slug,d:dist(profile,m.c)}));
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=arr[i];arr[i]=arr[j];arr[j]=t;}
+  arr.sort((a,b)=>a.d-b.d);
+  return arr.map(x=>x.s);
+}
+
+function loadFirebase(){
+  return new Promise((resolve,reject)=>{
+    const V="10.12.5", base="https://www.gstatic.com/firebasejs/"+V+"/";
+    const s1=document.createElement("script");s1.src=base+"firebase-app-compat.js";
+    s1.onload=()=>{const s2=document.createElement("script");s2.src=base+"firebase-database-compat.js";
+      s2.onload=resolve;s2.onerror=reject;document.head.appendChild(s2);};
+    s1.onerror=reject;document.head.appendChild(s1);
+  });
+}
+
+const deviceId=(()=>{try{let d=localStorage.getItem("aimet_device");if(!d){d=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem("aimet_device",d)}return d}catch(e){return "anon"+Math.random()}})();
+
+const Store={
+  mode:"local", db:null,
+  async init(){
+    if(FIREBASE_CONFIG){
+      try{
+        await loadFirebase();
+        if(!window.firebase.apps.length) window.firebase.initializeApp(FIREBASE_CONFIG);
+        this.db=window.firebase.database();
+        this.db.ref("claims").on("value",snap=>{
+          const v=snap.val()||{};claimedMirror=new Set(Object.keys(v));uiSyncAll();
+        });
+        this.mode="shared";
+      }catch(e){ this.mode="local"; this._loadLocal(); }
+    } else { this.mode="local"; this._loadLocal(); }
+    updateModeBadge();
+  },
+  _loadLocal(){try{claimedMirror=new Set(JSON.parse(localStorage.getItem(STORE)||"[]"))}catch(e){claimedMirror=new Set()} uiSyncAll();},
+  // atomically claim the nearest available metaphor; returns its slug or null
+  async claimNearest(profile){
+    const order=rankedForClaim(profile);
+    if(this.mode==="shared"){
+      for(const slug of order){
+        try{
+          const res=await this.db.ref("claims/"+slug).transaction(cur=> cur===null ? {by:deviceId,ts:Date.now()} : undefined);
+          if(res.committed && res.snapshot.val() && res.snapshot.val().by===deviceId) return slug;
+        }catch(e){ /* contended or offline: try the next one */ }
+      }
+      return null;
+    }
+    for(const slug of order){ if(!claimedMirror.has(slug)){claimedMirror.add(slug);persistLocal();uiSyncAll();return slug} }
+    return null;
+  },
+  async resetAll(){
+    if(this.mode==="shared"){ try{await this.db.ref("claims").set(null)}catch(e){} }
+    else { claimedMirror=new Set();persistLocal();uiSyncAll(); }
+  }
+};
+
+function uiSyncAll(){ try{poolLine()}catch(e){} try{refreshInstructor()}catch(e){} }
+function updateModeBadge(){
+  const chip=document.getElementById("store-mode"), note=document.getElementById("store-note");
+  if(chip) chip.innerHTML = Store.mode==="shared"
+    ? 'Shared store: <b style="color:var(--E)">connected</b> &mdash; the once-only rule holds across every device.'
+    : 'Shared store: <b style="color:var(--C)">single-device mode</b> &mdash; claims are kept in this browser only.';
+  if(note) note.innerHTML = Store.mode==="shared"
+    ? 'Reset clears the shared record for <b>all</b> devices at once.'
+    : 'To make the once-only rule span every device at the same time, add a shared store &mdash; see the README\u2019s \u201cShared store\u201d section. Until then, claims live in this browser.';
+}
+
+function dist(a,b){let d=0;for(let k=0;k<5;k++){const x=W[k]*(a[k]-b[k]);d+=x*x}return d}
+function ranked(profile,exclude){
+  exclude=exclude||new Set();
+  return METAPHORS.filter(m=>!exclude.has(m.slug))
+    .map(m=>({m,d:dist(profile,m.c)}))
+    .sort((p,q)=> p.d-q.d || p.m.branch-q.m.branch || p.m.name.localeCompare(q.m.name));
+}
+function assign(profile,exclude){
+  const r=ranked(profile,exclude); if(!r.length) return null;
+  const best=r[0].d, tied=r.filter(x=>Math.abs(x.d-best)<1e-9);
+  return tied[Math.floor(Math.random()*tied.length)].m;
+}
+function pureNearest(profile){return ranked(profile,new Set())[0].m}
+
+let answers=[null,null,null,null,null];
+let step=0;
+let readonly=false;
+
+const $=id=>document.getElementById(id);
+const show=id=>{document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");window.scrollTo({top:0,behavior:"smooth"})};
+function toast(t){const el=$("toast");el.textContent=t;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1600)}
+function poolLine(){const left=72-getClaimed().size;$("pool-line").textContent=left===72?"":left+" of 72 metaphors still unclaimed in this session.";}
+
+function renderProgress(){
+  $("prog-count").textContent=String(step+1).padStart(2,"0")+" / 05";
+  $("prog-bars").innerHTML=DIMS.map((_,i)=>'<span class="'+(i<=step?"on":"")+'"></span>').join("");
+}
+function renderQ(){
+  renderProgress();
+  const d=DIMS[step];
+  const host=$("q-host");
+  host.innerHTML='<p class="qnum">Question '+(step+1)+' of 5</p>'+
+    '<p class="qtitle">'+d.title+'</p>'+
+    '<h2 class="qprompt">'+d.prompt+'</h2>'+
+    '<div class="opts">'+d.opts.map(o=>
+      '<button class="opt'+(answers[step]===o.c?" sel":"")+'" data-code="'+o.c+'">'+
+      '<span class="tick"></span><span>'+o.l+'</span></button>').join("")+'</div>';
+  host.querySelectorAll(".opt").forEach(b=>b.addEventListener("click",()=>{
+    answers[step]=parseInt(b.dataset.code,10);
+    if(step<4){step++;renderQ()} else finish();
+  }));
+  $("back").style.visibility = step===0?"hidden":"visible";
+}
+
+function toneBadge(t){return '<span class="dot '+t+'"></span>'+TONE[t];}
+function artFor(slug,name){
+  const letters=name.replace(/^The\s+/,"").trim().split(/[\s\/]+/).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+  const host=document.createElement("div");host.style.width="100%";host.style.height="100%";host.style.display="grid";host.style.placeItems="center";
+  host.innerHTML='<div class="mono-fallback">'+letters+'</div>';
+  const img=new Image();
+  img.alt=name+" \u2014 student illustration";
+  img.onload=()=>{host.innerHTML="";host.appendChild(img)};
+  img.onerror=()=>{};
+  img.src="images/"+slug+".png";
+  return host;
+}
+function showResult(m,profile,doClaim){
+  const idx=METAPHORS.findIndex(x=>x.slug===m.slug)+1;
+  $("spec-id").textContent="No. "+String(idx).padStart(2,"0");
+  $("spec-tone").innerHTML=toneBadge(m.tone);
+  const art=$("spec-art");art.innerHTML="";art.appendChild(artFor(m.slug,m.name));
+  $("spec-name").textContent=m.name;
+  $("spec-desc").textContent=m.desc+".";
+  $("spec-branch").textContent="Branch \u2014 "+BRANCHES[m.branch];
+  $("res-eyebrow").textContent=readonly?"A shared result":"Your metaphor";
+  const th=$("taken-host");th.innerHTML="";
+  if(doClaim){
+    const natural=pureNearest(profile);
+    if(dist(profile,m.c) > dist(profile,natural.c)+1e-9){
+      th.innerHTML='<div class="taken-note">Your closest match, <b>'+natural.name+'</b>, was already claimed by a classmate \u2014 so you\u2019ve been paired with your next-nearest reading.</div>';
+    }
+  }
+  const nb=ranked(profile,new Set([m.slug])).slice(0,3);
+  $("neighbours").innerHTML=nb.map(x=>
+    '<div class="nb"><span class="nb-name">'+x.m.name+'</span><span class="nb-desc">'+x.m.desc+'</span><span class="dot '+x.m.tone+'"></span></div>').join("");
+  buildExplorer(profile);
+  const url=location.origin+location.pathname+"#a="+profile.join("-")+"&m="+m.slug;
+  $("share-url").value=url;
+  refreshInstructor();
+  show("s-result");
+}
+
+function buildExplorer(profile){
+  const cur=profile.slice();
+  const host=$("ex-dims");
+  function paint(){
+    host.innerHTML=DIMS.map((d,di)=>
+      '<div class="dimrow"><div class="dl"><span class="dn">'+d.title+'</span></div>'+
+      '<div class="segs">'+d.opts.map(o=>
+        '<button class="seg'+(cur[di]===o.c?" on":"")+'" data-di="'+di+'" data-c="'+o.c+'">'+o.l+'</button>').join("")+
+      '</div></div>').join("");
+    host.querySelectorAll(".seg").forEach(b=>b.addEventListener("click",()=>{
+      cur[parseInt(b.dataset.di)]=parseInt(b.dataset.c);paint();out();
+    }));
+  }
+  function out(){
+    const m=pureNearest(cur);
+    const base=pureNearest(profile);
+    const changed=cur.some((v,i)=>v!==profile[i]);
+    $("eo-name").textContent=m.name;
+    const flipped=changed && m.branch!==base.branch;
+    $("eo-branch").innerHTML=(flipped?'<span class="flip">':'')+BRANCHES[m.branch]+(flipped?' \u2014 a different branch entirely':'')+(flipped?'</span>':'');
+  }
+  $("ex-reset").onclick=()=>{for(let i=0;i<5;i++)cur[i]=profile[i];paint();out()};
+  paint();out();
+}
+
+async function finish(){
+  $("q-host").innerHTML='<p class="qnum">&nbsp;</p><h2 class="qprompt" style="opacity:.75">Finding your metaphor\u2026</h2>';
+  $("back").style.visibility="hidden";
+  const profile=answers.slice();
+  let slug=null;
+  try{ slug=await Store.claimNearest(profile); }catch(e){ slug=null; }
+  readonly=false;
+  if(slug===null){
+    const m=pureNearest(profile);
+    showResult(m,profile,false);
+    $("res-eyebrow").textContent="Every metaphor claimed";
+    $("taken-host").innerHTML='<div class="taken-note">All 72 metaphors have been claimed \u2014 you\u2019re seeing your closest match with the once-only rule set aside. An instructor can reset the paths below.</div>';
+    return;
+  }
+  showResult(METAPHORS.find(x=>x.slug===slug),profile,true);
+}
+
+function refreshInstructor(){
+  const claimed=getClaimed();
+  $("st-claimed").textContent=claimed.size;
+  $("st-left").textContent=72-claimed.size;
+  const names=[...claimed].map(s=>METAPHORS.find(m=>m.slug===s)).filter(Boolean).map(m=>m.name);
+  $("claimed-list").textContent=names.length?("Claimed: "+names.join(" \u00b7 ")):"";
+}
+function buildFnames(){
+  $("fnames").innerHTML=METAPHORS.map(m=>m.slug+".png &nbsp;<span style='color:var(--muted-2)'>"+m.name+"</span>").join("<br>");
+}
+
+function tryShared(){
+  const h=location.hash;
+  const ma=h.match(/a=([\d\-]+)/), mm=h.match(/m=([a-z0-9\-]+)/);
+  if(ma&&mm){
+    const profile=ma[1].split("-").map(Number);
+    const m=METAPHORS.find(x=>x.slug===mm[1]);
+    if(m&&profile.length===5){readonly=true;showResult(m,profile,false);
+      $("next-person").textContent="Take it yourself \u2192";return true}
+  }
+  return false;
+}
+
+buildFnames();poolLine();Store.init();
+$("begin").onclick=()=>{answers=[null,null,null,null,null];step=0;readonly=false;renderQ();show("s-quiz")};
+$("back").onclick=()=>{if(step>0){step--;renderQ()}};
+$("next-person").onclick=()=>{history.replaceState(null,"",location.pathname);answers=[null,null,null,null,null];step=0;readonly=false;poolLine();show("s-intro")};
+$("copy").onclick=async()=>{try{await navigator.clipboard.writeText($("share-url").value);toast("Link copied")}catch(e){$("share-url").select();try{document.execCommand("copy")}catch(_){}toast("Link copied")}};
+$("reset-all").onclick=async()=>{
+  const msg=Store.mode==="shared"
+    ? "Reset all paths for the whole class? Every metaphor becomes available again and the shared record is cleared on every device."
+    : "Reset all paths? Every metaphor becomes available again and the record of who got what is cleared.";
+  if(confirm(msg)){ await Store.resetAll(); refreshInstructor(); poolLine(); toast("All 72 paths reset") }
+};
+tryShared();
+</script>
+</body>
+</html>
